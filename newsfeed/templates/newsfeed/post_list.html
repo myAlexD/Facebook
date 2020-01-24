@@ -1,0 +1,92 @@
+{% extends 'newsfeed/base.html' %}
+{% load crispy_forms_tags %}
+{% block javascript %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $.ajax({
+        url: '/comments/1',
+        dataType: 'json',
+        success: function(data) {
+          function count(obj) {
+             var count=0;
+             for(var prop in obj) {
+                if (obj.hasOwnProperty(prop)) {
+                   ++count;
+                }
+             }
+             return count;
+          }
+          for (var i = count(data); i > 0; i--) {
+            $("#comments-for-post-1").append('<p>' + data[i] + '</p>')
+            console.log(data[i])
+          }
+          console.log(data)
+        },
+      });
+    });
+      $(".comment-button").each(function(i) {
+        $(this).on('click',function() {
+          var comment_form = document.getElementById("comment-fomr-" + (i+1))
+          comment_form.classList.toggle("hidden");
+        });
+      });
+      $(document).on('submit', function(e) { 
+        var form = document.getElementById(e.target.attributes["id"].textContent.split("-")[2])
+        $.ajax({
+          url: e.target.attributes["target_url"].textContent,
+          data: {
+            'csrfmiddlewaretoken': e.target[0].attributes.value.textContent,
+            'comment_input': form.value
+          },
+          dataType: 'json',
+          success: function(data){
+            if (data.for == 'likes') {
+              if (data.is_liked) {
+                $("#js-button-like-" + data.post_id).removeClass("btn-danger");
+                $("#js-button-like-" + data.post_id).addClass("btn-info");
+              }
+              else {
+                $("#js-button-like-" + data.post_id).removeClass("btn-info");
+                $("#js-button-like-" + data.post_id).addClass("btn-danger");
+              }
+              document.getElementById("like-legend-" + data.post_id).innerHTML = data.like_count + " Likes";
+              document.getElementById("like-legend-" + data.post_id).attributes["title"].textContent = data.user_list
+            } else{
+              form.value = ""
+              document.getElementById("like-legend-" + data.post_id).innerHTML = data.comment_count + " Comments";
+              comment_form = document.getElementById("comment-fomr-" + data.post_id).classList.add("hidden")
+              console.log(data)
+            }
+          },
+        });
+        e.preventDefault();
+      });
+  </script>
+{%endblock%}
+{% block content %}
+    <h1>COUNT: {{ post.comment_count }}</h1>
+    {% for post in posts %}
+      <article class="media content-section" class="jx-post-{{ post.id }}">
+        <div class="media-body">
+          <div class="article-metadata">
+            <a class="mr-2" href="#">{{ post.author }}</a>
+            <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+          </div>
+          <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
+          <hr>
+          <p class="article-content">{{ post.content }}</p>
+          {% if post.image %}
+            <img src="{{ post.image.url }}" class="mb-2" height="300">
+          {% endif %}
+          <hr>
+          <dir class="post-legend">
+            <small class="text-muted" id="like-legend-{{ post.id }}" data-toggle="tooltip" title="{% if post.liked_by.all %}Liked by:  {% for users in post.liked_by.all %}{{ users.username }}, {% endfor %} {% else %} No one liked this yet {% endif %}">{{ post.liked_by.count }} Likes</small>
+            <small class="text-muted" id="comment-legend-{{ post.id }}"> Comments</small>
+          </dir>
+          {% include 'newsfeed/mydiv.html' %}
+          <div id="comments-for-post-{{ post.id }}"></div>
+          {% include 'newsfeed/comments.html' %}
+      </article>
+
+    {% endfor %}
+{% endblock content%}

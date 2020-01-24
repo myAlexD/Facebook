@@ -1,0 +1,16 @@
+<div class="article-metadata">
+	<form method="POST" target_url="{% url 'liked' post.id %}" id="like-form-{{ post.id }}">
+		{% csrf_token %}
+		<fieldset class="form-group like-container">
+			<button type="submit" id="js-button-like-{{ post.id }}" class="btn btn-{% if user in post.liked_by.all %}danger{% else %}info{% endif %}">Like</button>
+		</fieldset>
+	</form>
+	<button class="btn btn-outline-info mb-3 comment-button">Comment</button>
+	<form method="POST" class="hidden" target_url="{% url 'comment' post.id %}" action="{% url 'comment' post.id %}" id="comment-fomr-{{ post.id }}">
+		{% csrf_token %}
+		<fieldset class="form-group">
+			<input type="text" placeholder="Add your comment" name="comment_input" id="{{ post.id }}">
+			<button type="submit" class="btn btn-outline-info"><img src="https://www.kindpng.com/picc/m/11-110952_transparent-approval-clipart-submit-for-approval-icon-hd.png" height="30px"></button>
+		</fieldset>
+	</form>
+</div>

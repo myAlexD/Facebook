@@ -1,0 +1,16 @@
+
+<h1>comments</h1>
+{% for comment in comments %}
+<div class="article-metadata">
+	<table>
+		<tr>
+			<td>
+				<a href="#">a{{ comment.author }}</a>
+			</td>
+			<td>
+				<p>{{ comment.comment }}</p>
+			</td>
+		</tr>
+	</table>
+</div>
+{% endfor %}
