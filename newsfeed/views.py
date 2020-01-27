@@ -4,12 +4,23 @@ from django.views.generic import ListView
 from .models import Post, Comments
 from django.http import JsonResponse, HttpResponse
 
+'''
 class PostListView(ListView):
 	model = Post 
 	context_object_name = 'posts'
 	class Meta:
 		ordering = ["-date_posted"] 
+'''
 
+def postlist(request):
+	user = request.user
+	own_posts  = Post.objects.filter(author=user)
+	liked_posts = Post.objects.filter(liked_by=user).order_by("-date_posted")
+	context = own_posts | liked_posts
+	comments = Comments.objects.all()
+	l = [comment.post_k.id for comment in comments]
+	comment_counts = {i:l.count(i) for i in l}
+	return render(request, 'newsfeed/post_list.html', {'posts':context, 'comments': comments, 'l':l, 'comment_counts': comment_counts})
 
 
 def post_likes(request,pk):
@@ -66,7 +77,6 @@ def comment_section(request,pk):
 	post = Post.objects.filter(id=pk).first()
 	for x in range(Comments.objects.filter(post_k=post).count()):
 		data[str(x)] = str(Comments.objects.filter(post_k=post).all()[x].comment)
-		print(data)
 	return JsonResponse(data,safe=False)
 
 

@@ -64,7 +64,6 @@
   </script>
 {%endblock%}
 {% block content %}
-    <h1>COUNT: {{ post.comment_count }}</h1>
     {% for post in posts %}
       <article class="media content-section" class="jx-post-{{ post.id }}">
         <div class="media-body">
@@ -81,12 +80,20 @@
           <hr>
           <dir class="post-legend">
             <small class="text-muted" id="like-legend-{{ post.id }}" data-toggle="tooltip" title="{% if post.liked_by.all %}Liked by:  {% for users in post.liked_by.all %}{{ users.username }}, {% endfor %} {% else %} No one liked this yet {% endif %}">{{ post.liked_by.count }} Likes</small>
-            <small class="text-muted" id="comment-legend-{{ post.id }}"> Comments</small>
+            <small class="text-muted" id="comment-legend-{{ post.id }}">
+            {% if post.id in l %}
+              {% for key,value in comment_counts.items %}
+                {% if key == post.id %}
+                  {{ value }}
+                {% endif %}
+              {% endfor %}
+            {% else %}0
+            {% endif %} Comments
+          </small>
           </dir>
           {% include 'newsfeed/mydiv.html' %}
           <div id="comments-for-post-{{ post.id }}"></div>
           {% include 'newsfeed/comments.html' %}
       </article>
-
     {% endfor %}
 {% endblock content%}

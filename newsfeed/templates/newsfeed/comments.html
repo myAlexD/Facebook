@@ -1,11 +1,10 @@
-
-<h1>comments</h1>
 {% for comment in comments %}
+{% if comment.post_k.id == post.id %}
 <div class="article-metadata">
 	<table>
 		<tr>
 			<td>
-				<a href="#">a{{ comment.author }}</a>
+				<a href="#">{{ comment.user_c }}</a>
 			</td>
 			<td>
 				<p>{{ comment.comment }}</p>
@@ -13,4 +12,5 @@
 		</tr>
 	</table>
 </div>
+{% endif %}
 {% endfor %}
